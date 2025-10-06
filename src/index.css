@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Midnight Blue theme */
+    --background: 220 60% 8%;
+    --foreground: 210 40% 98%;
+
+    --card: 220 45% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 220 45% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Neon Cyan primary */
+    --primary: 180 100% 50%;
+    --primary-foreground: 220 60% 8%;
+
+    /* Silver/Grey secondary */
+    --secondary: 220 10% 70%;
+    --secondary-foreground: 220 60% 8%;
+
+    --muted: 220 35% 18%;
+    --muted-foreground: 220 10% 65%;
+
+    --accent: 180 100% 50%;
+    --accent-foreground: 220 60% 8%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 35% 20%;
+    --input: 220 35% 20%;
+    --ring: 180 100% 50%;
+
+    --radius: 1rem;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(220, 60%, 8%) 0%, hsl(220, 50%, 5%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(220, 45%, 12%) 0%, hsl(220, 40%, 10%) 100%);
+    --glow-cyan: 0 0 20px hsl(180 100% 50% / 0.5);
+    --glow-cyan-strong: 0 0 30px hsl(180 100% 50% / 0.7);
+
+    --sidebar-background: 220 45% 12%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 180 100% 50%;
+    --sidebar-primary-foreground: 220 60% 8%;
+    --sidebar-accent: 220 35% 18%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 220 35% 20%;
+    --sidebar-ring: 180 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .glow-cyan {
+    box-shadow: var(--glow-cyan);
+  }
+
+  .glow-cyan-strong {
+    box-shadow: var(--glow-cyan-strong);
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+}
