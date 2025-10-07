@@ -4,65 +4,50 @@ import { Loader2 } from "lucide-react";
 
 export default function AuthCallback(): ReactElement {
   const navigate = useNavigate();
-  const [message, setMessage] = useState<string>("Redirecting…");
+  const [message, setMessage] = useState<string>("Processing authorization…");
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    const code = searchParams.get("code");
-    const state = searchParams.get("state");
 
-    // If no authorization code → redirect back to login
-    if (!code) {
+    // Deriv returns multiple tokens: token1, token2, token3, etc.
+    const tokenKeys = Array.from(searchParams.keys()).filter((key) =>
+      key.startsWith("token")
+    );
+
+    if (tokenKeys.length === 0) {
+      console.error("No tokens found in URL");
       navigate("/login", { replace: true });
       return;
     }
 
-    // Perform token exchange with backend
-    (async () => {
-      try {
-        setMessage("Authorizing…");
+    // Pick the first token (or apply logic to select the desired account)
+    const firstTokenKey = tokenKeys[0];
+    const derivToken = searchParams.get(firstTokenKey);
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/callback`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", // include cookies if backend sets them
-          body: JSON.stringify({ code, state }),
-        });
+    if (!derivToken) {
+      console.error("Failed to extract Deriv token");
+      navigate("/login", { replace: true });
+      return;
+    }
 
-        if (!response.ok) {
-          console.error("Auth callback failed:", response.status, await response.text());
-          navigate("/login", { replace: true });
-          return;
-        }
+    // ✅ Save the token locally for protected routes
+    localStorage.setItem("deriv_token", derivToken);
 
-        // ✅ Try to parse the backend response
-        const data = await response.json().catch(() => ({}));
+    // (Optional) You could also store selected account, currency, etc.
+    const account = searchParams.get(firstTokenKey.replace("token", "acct"));
+    const currency = searchParams.get(firstTokenKey.replace("token", "cur"));
+    if (account) localStorage.setItem("deriv_account", account);
+    if (currency) localStorage.setItem("deriv_currency", currency);
 
-        // ✅ Check for token or session indication
-        if (data?.token) {
-          // Save token for client-side route protection
-          localStorage.setItem("deriv_token", data.token);
-        } else if (!document.cookie.includes("session")) {
-          // If neither a token nor a cookie session exists, treat it as failed
-          console.warn("No token or session cookie found after callback");
-          navigate("/login", { replace: true });
-          return;
-        }
+    setMessage("Success! Redirecting to your dashboard…");
 
-        // ✅ Redirect to dashboard on success
-        setMessage("Success. Redirecting to dashboard…");
-        setTimeout(() => navigate("/dashboard", { replace: true }), 500);
-
-      } catch (err) {
-        console.error("Auth callback error:", err);
-        navigate("/login", { replace: true });
-      }
-    })();
+    // Redirect to dashboard after short delay
+    setTimeout(() => {
+      navigate("/dashboard", { replace: true });
+    }, 600);
   }, [navigate]);
 
-  // Simple loading UI
+  // Loading UI
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="flex items-center gap-3 text-blue-800">
