@@ -7,40 +7,54 @@ export default function AuthCallback(): ReactElement {
   const [message, setMessage] = useState<string>("Redirecting…");
 
   useEffect(() => {
-    // Parse ?code=...&state=... from the current URL
     const searchParams = new URLSearchParams(window.location.search);
     const code = searchParams.get("code");
     const state = searchParams.get("state");
 
-    // If no code exists, go back to /login
+    // If no authorization code → redirect back to login
     if (!code) {
       navigate("/login", { replace: true });
       return;
     }
 
-    // Exchange the authorization code with our backend
+    // Perform token exchange with backend
     (async () => {
       try {
         setMessage("Authorizing…");
+
         const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/callback`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
+          credentials: "include", // include cookies if backend sets them
           body: JSON.stringify({ code, state }),
         });
 
         if (!response.ok) {
-          // Failed exchange → go back to login
           console.error("Auth callback failed:", response.status, await response.text());
           navigate("/login", { replace: true });
           return;
         }
 
-        // Successful exchange → backend likely set a session or returned data
+        // ✅ Try to parse the backend response
+        const data = await response.json().catch(() => ({}));
+
+        // ✅ Check for token or session indication
+        if (data?.token) {
+          // Save token for client-side route protection
+          localStorage.setItem("deriv_token", data.token);
+        } else if (!document.cookie.includes("session")) {
+          // If neither a token nor a cookie session exists, treat it as failed
+          console.warn("No token or session cookie found after callback");
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        // ✅ Redirect to dashboard on success
         setMessage("Success. Redirecting to dashboard…");
-        navigate("/dashboard", { replace: true });
+        setTimeout(() => navigate("/dashboard", { replace: true }), 500);
+
       } catch (err) {
         console.error("Auth callback error:", err);
         navigate("/login", { replace: true });
@@ -48,7 +62,7 @@ export default function AuthCallback(): ReactElement {
     })();
   }, [navigate]);
 
-  // Minimal loading UI while the above runs
+  // Simple loading UI
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="flex items-center gap-3 text-blue-800">
@@ -58,5 +72,3 @@ export default function AuthCallback(): ReactElement {
     </div>
   );
 }
-
-
