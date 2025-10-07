@@ -6,9 +6,9 @@ import Pricing from "./landing/Pricing";
 import CTABanner from "./landing/CTABanner";
 import Footer from "./landing/Footer";
 
-const Index = () => {
+export default function LandingPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <Hero />
       <Features />
       <HowItWorks />
@@ -18,6 +18,6 @@ const Index = () => {
       <Footer />
     </div>
   );
-};
+}
 
-export default Index;
+
