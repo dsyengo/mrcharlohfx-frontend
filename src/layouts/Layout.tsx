@@ -7,11 +7,9 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900">
       <Navbar />
-      <main className="flex-grow pt-20 px-6 md:px-10 lg:px-16">
-        <div className="max-w-7xl mx-auto w-full">{children}</div>
+      <main className="flex-grow pt-35 px-6 md:px-10 lg:px-16">
+        {children}
       </main>
     </div>
   );
 }
-
-

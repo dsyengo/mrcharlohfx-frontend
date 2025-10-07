@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import BotBuilder from "./pages/BotBuilder";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AuthCallback from "./pages/AuthCallback";
+import ChartsTradingView from "@/pages/ChartsTradingView";
 
 function App(): ReactElement {
   return (
@@ -15,19 +16,28 @@ function App(): ReactElement {
       <Route
         path="/dashboard"
         element={
-         <ProtectedRoute>
+         //<ProtectedRoute>
             <Dashboard />
-        </ProtectedRoute>
+      //  </ProtectedRoute>
         }
       />
       <Route
         path="/bot-builder"
         element={
-          <ProtectedRoute>
+         // <ProtectedRoute>
             <BotBuilder />
-          </ProtectedRoute>
+         // </ProtectedRoute>
         }
       />
+      <Route
+        path="/charts"
+        element={
+         // <ProtectedRoute>
+            <ChartsTradingView />
+         // </ProtectedRoute>
+        }
+      />
+      
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
