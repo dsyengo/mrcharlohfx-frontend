@@ -9,10 +9,8 @@ export default function AuthCallback(): ReactElement {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
 
-    // Deriv returns multiple tokens: token1, token2, token3, etc.
-    const tokenKeys = Array.from(searchParams.keys()).filter((key) =>
-      key.startsWith("token")
-    );
+    // Deriv returns multiple tokens in query params: token1, token2, ...
+    const tokenKeys = Array.from(searchParams.keys()).filter((key) => key.startsWith("token"));
 
     if (tokenKeys.length === 0) {
       console.error("No tokens found in URL");
@@ -30,21 +28,25 @@ export default function AuthCallback(): ReactElement {
       return;
     }
 
-    // ✅ Save the token locally for protected routes
+    // ✅ Save tokens for protected routes and API use
+    // Store primary token for guards
     localStorage.setItem("deriv_token", derivToken);
 
-    // (Optional) You could also store selected account, currency, etc.
-    const account = searchParams.get(firstTokenKey.replace("token", "acct"));
-    const currency = searchParams.get(firstTokenKey.replace("token", "cur"));
-    if (account) localStorage.setItem("deriv_account", account);
-    if (currency) localStorage.setItem("deriv_currency", currency);
+    // Store ALL returned accounts/tokens/currencies for later selection
+    const accounts = tokenKeys
+      .map((tKey) => {
+        const token = searchParams.get(tKey);
+        const idx = tKey.replace("token", "");
+        const acct = searchParams.get(`acct${idx}`);
+        const cur = searchParams.get(`cur${idx}`);
+        if (!token) return null;
+        return { accountId: acct ?? undefined, currency: cur ?? undefined, token };
+      })
+      .filter(Boolean);
+    localStorage.setItem("deriv_accounts", JSON.stringify(accounts));
 
     setMessage("Success! Redirecting to your dashboard…");
-
-    // Redirect to dashboard after short delay
-    setTimeout(() => {
-      navigate("/dashboard", { replace: true });
-    }, 600);
+    navigate("/dashboard", { replace: true });
   }, [navigate]);
 
   // Loading UI

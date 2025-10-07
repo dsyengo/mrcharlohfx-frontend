@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 
 const APP_ID = import.meta.env.VITE_APP_ID as string;
-const REDIRECT_URI = (import.meta.env.VITE_DERIV_REDIRECT_URI as string);
+const REDIRECT_URI = import.meta.env.VITE_DERIV_REDIRECT_URI as string | undefined;
 
 export default function Login() {
   const isValidAppId = typeof APP_ID === "string" && /^\d+$/.test(APP_ID);
@@ -12,7 +12,8 @@ export default function Login() {
       alert("Login not configured: missing app_id. Please set VITE_DERIV_APP_ID.");
       return;
     }
-    const authUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=${encodeURIComponent(APP_ID)}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+    const base = `https://oauth.deriv.com/oauth2/authorize?app_id=${encodeURIComponent(APP_ID)}`;
+    const authUrl = REDIRECT_URI ? `${base}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` : base;
     window.location.href = authUrl;
   };
 
@@ -31,7 +32,7 @@ export default function Login() {
             Login with Deriv
           </Button>
           {!isValidAppId && (
-            <p className="text-xs text-red-600">Missing VITE_DERIV_APP_ID in .env</p>
+            <p className="text-xs text-red-600">Missing VITE_APP_ID in .env</p>
           )}
           <p className="text-xs text-blue-800/70">You'll be redirected to Deriv to sign in securely.</p>
         </div>
