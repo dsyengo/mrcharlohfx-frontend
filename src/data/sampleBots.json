@@ -1,0 +1,182 @@
+[
+  {
+    "id": "1",
+    "name": "Volatility Hunter",
+    "description": "A smart elite bot that trades based on volatility spikes.",
+    "category": "Elite",
+    "filePath": "/bots/volatility-hunter.xml",
+    "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "rating": 4.7
+  },
+  {
+    "id": "2",
+    "name": "TrendMaster Pro",
+    "description": "Elite trend-following bot with RSI and Bollinger Bands confirmation.",
+    "category": "Elite",
+    "filePath": "/bots/trendmaster-pro.xml",
+    "youtubeUrl": "https://www.youtube.com/watch?v=QH2-TGUlwu4",
+    "rating": 4.8
+  },
+  {
+    "id": "3",
+    "name": "ScalpXpert",
+    "description": "High-frequency scalper bot optimized for short market bursts.",
+    "category": "Elite",
+    "filePath": "/bots/scalpxpert.xml",
+    "youtubeUrl": "https://www.youtube.com/watch?v=3GwjfUFyY6M",
+    "rating": 4.5
+  },
+  {
+    "id": "4",
+    "name": "Breakout Ninja",
+    "description": "Identifies and trades major breakout zones with minimal risk.",
+    "category": "Elite",
+    "filePath": "/bots/breakout-ninja.xml",
+    "youtubeUrl": "https://www.youtube.com/watch?v=L_jWHffIx5E",
+    "rating": 4.6
+  },
+  {
+    "id": "5",
+    "name": "Reversal Genius",
+    "description": "Catches market reversals using candle pattern recognition.",
+    "category": "Elite",
+    "filePath": "/bots/reversal-genius.xml",
+    "youtubeUrl": "https://www.youtube.com/watch?v=FTQbiNvZqaY",
+    "rating": 4.4
+  },
+  {
+    "id": "6",
+    "name": "SniperFX",
+    "description": "Elite sniper bot focusing on precise entry and exit points.",
+    "category": "Elite",
+    "filePath": "/bots/sniperfx.xml",
+    "youtubeUrl": "https://www.youtube.com/watch?v=ZZ5LpwO-An4",
+    "rating": 4.9
+  },
+  {
+    "id": "7",
+    "name": "Momentum Beast",
+    "description": "Aggressive elite bot designed for trending market conditions.",
+    "category": "Elite",
+    "filePath": "/bots/momentum-beast.xml",
+    "youtubeUrl": "https://www.youtube.com/watch?v=2Vv-BfVoq4g",
+    "rating": 4.6
+  },
+  {
+    "id": "8",
+    "name": "Pivot Reversal Bot",
+    "description": "Uses Fibonacci and pivot levels to detect market reversals.",
+    "category": "Elite",
+    "filePath": "/bots/pivot-reversal.xml",
+    "youtubeUrl": "https://www.youtube.com/watch?v=V-_O7nl0Ii0",
+    "rating": 4.2
+  },
+  {
+    "id": "9",
+    "name": "Price Action Wizard",
+    "description": "Reads raw price data and executes based on support/resistance.",
+    "category": "Elite",
+    "filePath": "/bots/price-action-wizard.xml",
+    "youtubeUrl": "https://www.youtube.com/watch?v=uelHwf8o7_U",
+    "rating": 4.7
+  },
+  {
+    "id": "10",
+    "name": "CandleSensei",
+    "description": "Elite candle pattern bot optimized for binary entries.",
+    "category": "Elite",
+    "filePath": "/bots/candlesensei.xml",
+    "youtubeUrl": "https://www.youtube.com/watch?v=kXYiU_JCYtU",
+    "rating": 4.5
+  },
+  {
+    "id": "11",
+    "name": "AI Momentum Bot",
+    "description": "An AI-powered bot using moving average strategies.",
+    "category": "AI Elite",
+    "filePath": "/bots/ai-momentum.json",
+    "youtubeUrl": "https://www.youtube.com/watch?v=abc123",
+    "rating": 4.3
+  },
+  {
+    "id": "12",
+    "name": "Deep Neural Trader",
+    "description": "AI-driven neural network bot for adaptive trading patterns.",
+    "category": "AI Elite",
+    "filePath": "/bots/deep-neural-trader.json",
+    "youtubeUrl": "https://www.youtube.com/watch?v=DLzxrzFCyOs",
+    "rating": 4.9
+  },
+  {
+    "id": "13",
+    "name": "ReinforceFX",
+    "description": "Uses reinforcement learning to improve its win rate dynamically.",
+    "category": "AI Elite",
+    "filePath": "/bots/reinforcefx.json",
+    "youtubeUrl": "https://www.youtube.com/watch?v=fJ9rUzIMcZQ",
+    "rating": 4.8
+  },
+  {
+    "id": "14",
+    "name": "AI ScalperX",
+    "description": "AI-based scalping bot that learns from short-term data trends.",
+    "category": "AI Elite",
+    "filePath": "/bots/ai-scalperx.json",
+    "youtubeUrl": "https://www.youtube.com/watch?v=8ybW48rKBME",
+    "rating": 4.6
+  },
+  {
+    "id": "15",
+    "name": "Predictive Trader",
+    "description": "Predicts upcoming candle direction using AI regression models.",
+    "category": "AI Elite",
+    "filePath": "/bots/predictive-trader.json",
+    "youtubeUrl": "https://www.youtube.com/watch?v=tVj0ZTS4WF4",
+    "rating": 4.4
+  },
+  {
+    "id": "16",
+    "name": "Sentiment Analyzer Bot",
+    "description": "Reads live market sentiment to adapt trade aggressiveness.",
+    "category": "AI Elite",
+    "filePath": "/bots/sentiment-analyzer.json",
+    "youtubeUrl": "https://www.youtube.com/watch?v=9bZkp7q19f0",
+    "rating": 4.7
+  },
+  {
+    "id": "17",
+    "name": "AI Reversal Detector",
+    "description": "Deep-learning-based reversal detector with candle sequence analysis.",
+    "category": "AI Elite",
+    "filePath": "/bots/ai-reversal-detector.json",
+    "youtubeUrl": "https://www.youtube.com/watch?v=6_b7RDuLwcI",
+    "rating": 4.5
+  },
+  {
+    "id": "18",
+    "name": "Adaptive Market Learner",
+    "description": "AI bot that evolves its strategy using market memory and drift.",
+    "category": "AI Elite",
+    "filePath": "/bots/adaptive-market-learner.json",
+    "youtubeUrl": "https://www.youtube.com/watch?v=oHg5SJYRHA0",
+    "rating": 4.9
+  },
+  {
+    "id": "19",
+    "name": "AI Arbitrage Master",
+    "description": "AI detects cross-market inefficiencies for profit opportunities.",
+    "category": "AI Elite",
+    "filePath": "/bots/ai-arbitrage-master.json",
+    "youtubeUrl": "https://www.youtube.com/watch?v=KxJkV0rQvOQ",
+    "rating": 4.8
+  },
+  {
+    "id": "20",
+    "name": "Quantum Predictor",
+    "description": "AI Elite bot leveraging quantum-inspired prediction models.",
+    "category": "AI Elite",
+    "filePath": "/bots/quantum-predictor.json",
+    "youtubeUrl": "https://www.youtube.com/watch?v=04854XqcfCY",
+    "rating": 4.9
+  }
+]

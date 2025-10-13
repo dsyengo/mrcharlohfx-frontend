@@ -1,0 +1,81 @@
+{
+    "botSecurity": {
+        "on": false,
+        "password": "12345678"
+    },
+    "defaultAsset": {
+        "name": "volatility_100(1s)",
+        "symbol": "1HZ100V"
+    },
+    "botName": "THE ELITE OVER",
+    "botDisplayName": "THE ELITE OVER",
+    "descriptions": [
+        "Has speed of every Tick",
+        "Can Be Configured to trade Digits Market as per the Trader"
+    ],
+    "stake": 5,
+    "multiplier": 2,
+    "sl": 200,
+    "tp": 20,
+    "marketSwitch": {
+        "switchCondition": "None",
+        "switchAfter": "1"
+    },
+    "trades": [
+        {
+            "market": "DIGITOVER",
+            "prediction": 4,
+            "time": 1,
+            "timeUnits": "t"
+        },
+        {
+            "market": "DIGITOVER",
+            "prediction": 6,
+            "time": 1,
+            "timeUnits": "t"
+        }
+    ],
+    "stopTrading": {
+        "stopCondition": "Concecutive Losses",
+        "stopAfter": 4
+    },
+    "speedBotStrategy": {
+        "isUseEntryPattern": false,
+        "entryPattern": "",
+        "isUseEntryPoints": false,
+        "entryPoints": "012",
+        "isUseLdp": true,
+        "ldpLastDigitCount": 3,
+        "ldpAnalysisMarket": "DIGITUNDER",
+        "ldpPredictionDigit": 5,
+        "isUsePercentage": true,
+        "tickToAnalyseInPercentage": 25,
+        "percentage": 50,
+        "percentageComparison": "Greater Than",
+        "percentageAnalysisMarket": "DIGITOVER",
+        "percentagePredictionDigit": 4,
+        "isInstantRecovery": false,
+        "isStrategySet": true
+    },
+    "virtualHook": {
+        "isVirtualActivated": false,
+        "maxLoseCount": 3,
+        "liveTradesCount": 1,
+        "isLiveTradeTillWin": true,
+        "isAlternateAccounts": false,
+        "isMartingaleOnVirtual": false
+    },
+    "volatilitySwitcher": {
+        "isSwitcherActivated": false,
+        "switchCondition": "OnLoss",
+        "isSwitchByCondition": true,
+        "runCount": 5,
+        "isRandomizedSwitch": true,
+        "volatilitiesOptions": "Volatility 1s"
+    },
+    "isTradeContinous": true,
+    "isHidden": false,
+    "date": "19-08-2025",
+    "youtubeLink": "",
+    "rating": 0.95
+}

@@ -21,14 +21,46 @@ export default function Navbar() {
 
   // ✅ All paths fixed (no hash)
   const menuItems = [
-    { label: "Dashboard", to: "/dashboard", icon: <Home className="w-4 h-4" /> },
-    { label: "Bot Builder", to: "/bot-builder", icon: <Bot className="w-4 h-4" /> },
-    { label: "Charts / Trading View", to: "/charts", icon: <LineChart className="w-4 h-4" /> },
-    { label: "Free Bots", to: "#/free-bots", icon: <BarChart2 className="w-4 h-4" /> },
-    { label: "Analysis Tool", to: "#/analysis", icon: <Zap className="w-4 h-4" /> },
-    { label: "EliteSpeed Bots", to: "#/elitespeed-bots", icon: <Rocket className="w-4 h-4" /> },
-    { label: "DTrader", to: "#/dtrader", icon: <DollarSign className="w-4 h-4" /> },
-    { label: "Copy Trading", to: "#/copy-trading", icon: <Users className="w-4 h-4" /> },
+    {
+      label: "Dashboard",
+      to: "/dashboard",
+      icon: <Home className="w-4 h-4" />,
+    },
+    {
+      label: "Bot Builder",
+      to: "/bot-builder",
+      icon: <Bot className="w-4 h-4" />,
+    },
+    {
+      label: "Charts / Trading View",
+      to: "/#charts",
+      icon: <LineChart className="w-4 h-4" />,
+    },
+    {
+      label: "Free Bots",
+      to: "/bots",
+      icon: <BarChart2 className="w-4 h-4" />,
+    },
+    {
+      label: "Analysis Tool",
+      to: "/analysis",
+      icon: <Zap className="w-4 h-4" />,
+    },
+    {
+      label: "EliteSpeed Bots",
+      to: "#/elitespeed-bots",
+      icon: <Rocket className="w-4 h-4" />,
+    },
+    {
+      label: "DTrader",
+      to: "/dtrader",
+      icon: <DollarSign className="w-4 h-4" />,
+    },
+    {
+      label: "Copy Trading",
+      to: "#/copy-trading",
+      icon: <Users className="w-4 h-4" />,
+    },
   ];
 
   // ✅ Check if route matches or starts with path
@@ -97,7 +129,10 @@ export default function Navbar() {
 
         {/* Mobile: Menu Toggle */}
         <div className="md:hidden flex items-center justify-between w-full">
-          <button onClick={() => setOpen(!open)} className="ml-auto text-blue-700">
+          <button
+            onClick={() => setOpen(!open)}
+            className="ml-auto text-blue-700"
+          >
             {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>

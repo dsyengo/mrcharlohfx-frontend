@@ -6,7 +6,11 @@ import Dashboard from "./pages/Dashboard";
 import BotBuilder from "./pages/BotBuilder";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AuthCallback from "./pages/AuthCallback";
-import ChartsTradingView from "@/pages/ChartsTradingView";
+// import ChartsTradingView from "../ChartsTradingView";
+import DTraderPage from "./pages/DTraderPage";
+import AnalysisPage from "./pages/analysis/AnalysisPage";
+import FreeBots from "./pages/FreeBots";
+import MarketAnalysis from "./pages/MarketAnalysis";
 
 function App(): ReactElement {
   return (
@@ -16,28 +20,45 @@ function App(): ReactElement {
       <Route
         path="/dashboard"
         element={
-         //<ProtectedRoute>
+          <ProtectedRoute>
             <Dashboard />
-      //  </ProtectedRoute>
+          </ProtectedRoute>
         }
       />
       <Route
         path="/bot-builder"
         element={
-         // <ProtectedRoute>
+          <ProtectedRoute>
             <BotBuilder />
-         // </ProtectedRoute>
+          </ProtectedRoute>
         }
       />
-      <Route
+      {/* <Route
         path="/charts"
         element={
          // <ProtectedRoute>
             <ChartsTradingView />
          // </ProtectedRoute>
         }
+      /> */}
+      <Route
+        path="/dtrader"
+        element={
+          <ProtectedRoute>
+            <DTraderPage />
+          </ProtectedRoute>
+        }
       />
-      
+      <Route
+        path="/analysis"
+        element={
+          <ProtectedRoute>
+            <MarketAnalysis />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/bots" element={<FreeBots />} />
+
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -45,5 +66,3 @@ function App(): ReactElement {
 }
 
 export default App;
-
-
