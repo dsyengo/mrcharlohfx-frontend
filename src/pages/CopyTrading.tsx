@@ -9,7 +9,16 @@ import RiskAllocation from "./copy-trading/RiskAllocation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import {
+  Menu,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+  BarChart3,
+  Activity,
+  Settings,
+} from "lucide-react";
 
 export default function CopyTrading() {
   const ws = useRef<WebSocket | null>(null);
@@ -23,6 +32,7 @@ export default function CopyTrading() {
   const [allocation, setAllocation] = useState<number[]>([25]);
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     const socket = new WebSocket(
@@ -98,83 +108,193 @@ export default function CopyTrading() {
   const stopCopying = () =>
     ws.current?.send(JSON.stringify({ copy_stop: 1, trader_id: traderId }));
 
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
+
   return (
     <Layout>
-      <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
+      <div className="flex h-screen overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
         {/* Sidebar */}
         <AnimatePresence>
-          {sidebarOpen && (
+          {(sidebarOpen || !sidebarCollapsed) && (
             <motion.aside
-              initial={{ x: -260, opacity: 0 }}
+              initial={{ x: -300, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -260, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="fixed lg:relative z-30 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-sm p-4 flex flex-col justify-between"
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className={`fixed lg:relative z-30 ${
+                sidebarCollapsed ? "w-20" : "w-80"
+              } bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-r border-gray-200/50 dark:border-gray-700/50 shadow-xl flex flex-col transition-all duration-300`}
             >
-              <div>
-                <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3">
-                  Trader Overview
-                </h2>
-
-                {traderInfo ? (
-                  <div className="space-y-3">
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      <strong>ID:</strong> {traderInfo.trader_id}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      <strong>ROI:</strong> {traderInfo.roi?.toFixed(2)}%
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      <strong>Followers:</strong>{" "}
-                      {traderInfo.followers_count || "—"}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      <strong>Open Trades:</strong> {trades.length}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-gray-500 text-sm">
-                    Select a trader to view details
-                  </p>
-                )}
-              </div>
-
-              <div className="mt-6">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Quick Actions
-                </h3>
-                <div className="flex gap-2">
+              {/* Sidebar Header */}
+              <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center justify-between">
+                  {!sidebarCollapsed && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex items-center gap-3"
+                    >
+                      <div className="p-2 bg-blue-500 rounded-lg">
+                        <Users className="h-5 w-5 text-white" />
+                      </div>
+                      <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                        Trader Hub
+                      </h2>
+                    </motion.div>
+                  )}
                   <Button
-                    size="sm"
-                    onClick={startCopying}
-                    disabled={!traderId}
-                    className="bg-green-600 hover:bg-green-700 text-white"
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleSidebar}
+                    className="h-8 w-8 rounded-lg"
                   >
-                    Start Copy
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={stopCopying}
-                    disabled={!traderId}
-                    variant="outline"
-                  >
-                    Stop
+                    {sidebarCollapsed ? (
+                      <ChevronRight className="h-4 w-4" />
+                    ) : (
+                      <ChevronLeft className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
+              </div>
+
+              {/* Sidebar Content */}
+              <div className="flex-1 p-4 space-y-6 overflow-y-auto">
+                {/* Trader Overview */}
+                <div>
+                  {!sidebarCollapsed && (
+                    <motion.h3
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3"
+                    >
+                      Trader Overview
+                    </motion.h3>
+                  )}
+
+                  {traderInfo ? (
+                    <div className="space-y-4">
+                      {[
+                        {
+                          icon: Users,
+                          label: "ID",
+                          value: traderInfo.trader_id,
+                        },
+                        {
+                          icon: BarChart3,
+                          label: "ROI",
+                          value: `${traderInfo.roi?.toFixed(2)}%`,
+                          color:
+                            traderInfo.roi >= 0
+                              ? "text-green-600"
+                              : "text-red-600",
+                        },
+                        {
+                          icon: Activity,
+                          label: "Followers",
+                          value: traderInfo.followers_count || "—",
+                        },
+                        {
+                          icon: Settings,
+                          label: "Open Trades",
+                          value: trades.length,
+                        },
+                      ].map((item, index) => (
+                        <motion.div
+                          key={item.label}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        >
+                          <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                            <item.icon
+                              className={`h-4 w-4 ${
+                                item.color || "text-gray-600 dark:text-gray-300"
+                              }`}
+                            />
+                          </div>
+                          {!sidebarCollapsed && (
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {item.label}
+                              </p>
+                              <p
+                                className={`text-sm font-medium truncate ${
+                                  item.color ||
+                                  "text-gray-900 dark:text-gray-100"
+                                }`}
+                              >
+                                {item.value}
+                              </p>
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    !sidebarCollapsed && (
+                      <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-gray-400 dark:text-gray-500 text-sm text-center py-8"
+                      >
+                        Select a trader to view details
+                      </motion.p>
+                    )
+                  )}
+                </div>
+
+                {/* Quick Actions */}
+                {!sidebarCollapsed && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-xl border border-blue-200/50 dark:border-blue-700/30"
+                  >
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                      Quick Actions
+                    </h3>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={startCopying}
+                        disabled={!traderId}
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/25"
+                      >
+                        Start Copy
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={stopCopying}
+                        disabled={!traderId}
+                        variant="outline"
+                        className="flex-1 border-gray-300 dark:border-gray-600"
+                      >
+                        Stop
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             </motion.aside>
           )}
         </AnimatePresence>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-y-auto">
+        <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky top-0 z-20">
-            <div className="flex items-center gap-2">
+          <motion.header
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-20"
+          >
+            <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden"
+                className="lg:hidden rounded-lg"
                 onClick={() => setSidebarOpen((prev) => !prev)}
               >
                 {sidebarOpen ? (
@@ -183,36 +303,66 @@ export default function CopyTrading() {
                   <Menu className="h-5 w-5" />
                 )}
               </Button>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Copy Trading Dashboard
-              </h1>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
+                  <Activity className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
+                    Copy Trading
+                  </h1>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Real-time trading dashboard
+                  </p>
+                </div>
+              </div>
             </div>
-            <span
-              className={`text-xs md:text-sm px-3 py-1 rounded-full font-medium ${
-                isConnected
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {isConnected ? "Connected" : "Disconnected"}
-            </span>
-          </div>
+
+            <div className="flex items-center gap-4">
+              <motion.span
+                animate={{
+                  scale: isConnected ? [1, 1.1, 1] : 1,
+                  backgroundColor: isConnected ? "#10B981" : "#EF4444",
+                }}
+                transition={{ duration: 0.5 }}
+                className="flex items-center gap-2 text-xs md:text-sm px-3 py-1.5 rounded-full font-medium text-white shadow-lg"
+              >
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                {isConnected ? "Live Connected" : "Disconnected"}
+              </motion.span>
+            </div>
+          </motion.header>
 
           {/* Content */}
-          <div className="p-4 md:p-8 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Top Traders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TopTraders
-                  traders={topTraders}
-                  onSelectTrader={fetchTraderData}
-                />
-              </CardContent>
-            </Card>
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+            {/* Top Traders Section */}
+            <motion.section
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+            >
+              <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Users className="h-5 w-5 text-blue-500" />
+                    Top Performing Traders
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TopTraders
+                    traders={topTraders}
+                    onSelectTrader={fetchTraderData}
+                  />
+                </CardContent>
+              </Card>
+            </motion.section>
 
-            <div className="grid lg:grid-cols-2 gap-6">
+            {/* Trader Input & Stats */}
+            <motion.section
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="grid lg:grid-cols-2 gap-6"
+            >
               <TraderInput
                 traderId={traderId}
                 setTraderId={setTraderId}
@@ -220,20 +370,33 @@ export default function CopyTrading() {
                 loading={loading}
               />
               <TraderStats info={traderInfo} />
-            </div>
+            </motion.section>
 
-            <div className="grid lg:grid-cols-2 gap-6">
+            {/* Charts & Live Feed */}
+            <motion.section
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="grid lg:grid-cols-2 gap-6"
+            >
               <PerformanceChart data={roiData} />
               <LiveTradesFeed trades={trades} />
-            </div>
+            </motion.section>
 
-            <RiskAllocation
-              allocation={allocation}
-              setAllocation={setAllocation}
-              onStart={startCopying}
-              onStop={stopCopying}
-            />
-          </div>
+            {/* Risk Allocation */}
+            <motion.section
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <RiskAllocation
+                allocation={allocation}
+                setAllocation={setAllocation}
+                onStart={startCopying}
+                onStop={stopCopying}
+              />
+            </motion.section>
+          </main>
         </div>
       </div>
     </Layout>
