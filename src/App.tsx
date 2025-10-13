@@ -11,6 +11,7 @@ import DTraderPage from "./pages/DTraderPage";
 import AnalysisPage from "./pages/analysis/AnalysisPage";
 import FreeBots from "./pages/FreeBots";
 import MarketAnalysis from "./pages/MarketAnalysis";
+import CopyTrading from "./pages/CopyTrading";
 
 function App(): ReactElement {
   return (
@@ -54,6 +55,14 @@ function App(): ReactElement {
         element={
           <ProtectedRoute>
             <MarketAnalysis />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analysis"
+        element={
+          <ProtectedRoute>
+            <CopyTrading />
           </ProtectedRoute>
         }
       />
