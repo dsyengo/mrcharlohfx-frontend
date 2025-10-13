@@ -58,7 +58,7 @@ export default function Navbar() {
     },
     {
       label: "Copy Trading",
-      to: "#/copy-trading",
+      to: "/copy-trading",
       icon: <Users className="w-4 h-4" />,
     },
   ];
