@@ -59,7 +59,7 @@ function App(): ReactElement {
         }
       />
       <Route
-        path="/analysis"
+        path="/copy-trading"
         element={
           <ProtectedRoute>
             <CopyTrading />
