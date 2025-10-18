@@ -1,16 +1,21 @@
+// AuthCallback.tsx
 import { useEffect, useState, type ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function AuthCallback(): ReactElement {
   const navigate = useNavigate();
+  const { refreshAccounts } = useAuth();
   const [message, setMessage] = useState<string>("Processing authorization…");
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
 
     // Deriv returns multiple tokens in query params: token1, token2, ...
-    const tokenKeys = Array.from(searchParams.keys()).filter((key) => key.startsWith("token"));
+    const tokenKeys = Array.from(searchParams.keys()).filter((key) =>
+      key.startsWith("token")
+    );
 
     if (tokenKeys.length === 0) {
       console.error("No tokens found in URL");
@@ -39,15 +44,24 @@ export default function AuthCallback(): ReactElement {
         const idx = tKey.replace("token", "");
         const acct = searchParams.get(`acct${idx}`);
         const cur = searchParams.get(`cur${idx}`);
+        const loginid = searchParams.get(`loginid${idx}`);
         if (!token) return null;
-        return { accountId: acct ?? undefined, currency: cur ?? undefined, token };
+        return {
+          accountId: acct ?? undefined,
+          currency: cur ?? undefined,
+          loginid: loginid ?? undefined,
+          token,
+        };
       })
       .filter(Boolean);
     localStorage.setItem("deriv_accounts", JSON.stringify(accounts));
 
+    // Refresh the auth context
+    refreshAccounts();
+
     setMessage("Success! Redirecting to your dashboard…");
     navigate("/dashboard", { replace: true });
-  }, [navigate]);
+  }, [navigate, refreshAccounts]);
 
   // Loading UI
   return (
