@@ -53,7 +53,9 @@ export default function TradingView() {
 
   return (
     <Layout>
+      {" "}
       <div className="w-full h-full bg-[#f8fafc] overflow-hidden">
+        {" "}
         <iframe
           ref={iframeRef}
           title="Deriv Live Charts"
@@ -61,8 +63,8 @@ export default function TradingView() {
           className="w-full border-none"
           allowFullScreen
           loading="eager"
-        />
-      </div>
+        />{" "}
+      </div>{" "}
     </Layout>
   );
 }
