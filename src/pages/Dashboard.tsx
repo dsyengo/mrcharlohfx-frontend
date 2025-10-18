@@ -41,7 +41,6 @@ export default function DashboardPage() {
   } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [tradingAccounts, setTradingAccounts] = useState<TradingAccount[]>([]);
-  const [totalBalance, setTotalBalance] = useState(0);
 
   // ✅ Menu items with icons
   const menuItems = [
@@ -110,25 +109,28 @@ export default function DashboardPage() {
     },
   ];
 
-  // Process accounts for display
+  // Process accounts for display using actual data from AuthContext
   const processAccounts = () => {
-    const processed: TradingAccount[] = accounts.map((account, index) => {
+    const processed: TradingAccount[] = accounts.map((account) => {
       const isRealAccount = account.accountId && account.accountId.length > 0;
       const accountType = isRealAccount ? "real" : "demo";
+
+      // Use actual loginid from account or generate from accountId
       const loginid =
         account.loginid ||
         account.accountId ||
-        `D${(index + 1).toString().padStart(7, "0")}`;
-      const balance =
-        accountType === "real"
-          ? 1000 + Math.random() * 2000
-          : 10000 + Math.random() * 5000;
+        `D${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+      // For now, we'll use placeholder balances since Deriv API balance requires separate call
+      // In a real implementation, you would fetch actual balances from Deriv API
+      const balance = accountType === "real" ? 0 : 10000; // Demo accounts start with 10k, real accounts start at 0 until we fetch actual balance
+
       const isActive = activeAccount?.token === account.token;
 
       return {
         ...account,
         loginid,
-        balance: Math.round(balance * 100) / 100, // Round to 2 decimal places
+        balance,
         isActive,
         accountType,
         currency: account.currency || "USD",
@@ -136,39 +138,23 @@ export default function DashboardPage() {
     });
 
     setTradingAccounts(processed);
-
-    // Calculate total balance
-    const total = processed.reduce((sum, acc) => sum + acc.balance, 0);
-    setTotalBalance(total);
   };
 
   const refreshBalances = async () => {
     setRefreshing(true);
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Update balances with random variations for realism
-    const updatedAccounts = tradingAccounts.map((acc) => {
-      const variation =
-        acc.accountType === "real"
-          ? Math.random() * 400 - 200 // Real accounts: ±$200
-          : Math.random() * 1000 - 500; // Demo accounts: ±$500
+    try {
+      // Refresh accounts data from AuthContext
+      await refreshAccounts();
 
-      const newBalance = Math.max(0, acc.balance + variation); // Prevent negative balance
-
-      return {
-        ...acc,
-        balance: Math.round(newBalance * 100) / 100,
-      };
-    });
-
-    setTradingAccounts(updatedAccounts);
-
-    // Update total balance
-    const total = updatedAccounts.reduce((sum, acc) => sum + acc.balance, 0);
-    setTotalBalance(total);
-
-    setRefreshing(false);
+      // In a real implementation, you would make API calls to Deriv to get actual balances
+      // For now, we'll just reprocess the accounts
+      processAccounts();
+    } catch (error) {
+      console.error("Failed to refresh balances:", error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const switchAccount = (account: TradingAccount) => {
@@ -193,6 +179,10 @@ export default function DashboardPage() {
 
   const getActiveTradingAccount = (): TradingAccount | undefined => {
     return tradingAccounts.find((acc) => acc.isActive);
+  };
+
+  const getTotalBalance = () => {
+    return tradingAccounts.reduce((total, acc) => total + acc.balance, 0);
   };
 
   // Initialize trading accounts when accounts change
@@ -254,6 +244,7 @@ export default function DashboardPage() {
   }
 
   const activeTradingAccount = getActiveTradingAccount();
+  const totalBalance = getTotalBalance();
 
   return (
     <Layout>
@@ -465,47 +456,46 @@ export default function DashboardPage() {
           </section>
         )}
 
-        {/* Recent Activity Section */}
+        {/* Account Information Section */}
         {activeTradingAccount && (
           <section className="bg-white border border-gray-300 rounded-2xl p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Recent Activity
+              Account Information
             </h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="bg-green-100 p-2 rounded-lg">
-                    <DollarSign className="w-4 h-4 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      Balance Updated
-                    </p>
-                    <p className="text-xs text-gray-600">Just now</p>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-sm text-gray-600">Account ID:</span>
+                  <span className="text-sm font-mono font-medium text-gray-900">
+                    {activeTradingAccount.loginid}
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-green-600">
-                  +$0.00
-                </span>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-sm text-gray-600">Account Type:</span>
+                  <span
+                    className={`text-sm font-medium capitalize ${
+                      activeTradingAccount.accountType === "real"
+                        ? "text-green-600"
+                        : "text-orange-600"
+                    }`}
+                  >
+                    {activeTradingAccount.accountType}
+                  </span>
+                </div>
               </div>
-
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="bg-blue-100 p-2 rounded-lg">
-                    <RefreshCw className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      Account Switched
-                    </p>
-                    <p className="text-xs text-gray-600">
-                      Active account changed
-                    </p>
-                  </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-sm text-gray-600">Currency:</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {activeTradingAccount.currency}
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-blue-600">
-                  {activeTradingAccount.loginid}
-                </span>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-sm text-gray-600">Status:</span>
+                  <span className="text-sm font-medium text-green-600">
+                    Connected
+                  </span>
+                </div>
               </div>
             </div>
           </section>
