@@ -12,6 +12,8 @@ import AnalysisPage from "./pages/analysis/AnalysisPage";
 import FreeBots from "./pages/FreeBots";
 import MarketAnalysis from "./pages/MarketAnalysis";
 import CopyTrading from "./pages/CopyTrading";
+import ChartPage from "./pages/ChartPage";
+import TradingView from "./pages/TradingView";
 
 function App(): ReactElement {
   return (
@@ -21,17 +23,17 @@ function App(): ReactElement {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
+          //<ProtectedRoute>
+          <Dashboard />
+          // </ProtectedRoute>
         }
       />
       <Route
         path="/bot-builder"
         element={
-          <ProtectedRoute>
-            <BotBuilder />
-          </ProtectedRoute>
+          // <ProtectedRoute>
+          <BotBuilder />
+          // </ProtectedRoute>
         }
       />
       {/* <Route
@@ -45,27 +47,38 @@ function App(): ReactElement {
       <Route
         path="/dtrader"
         element={
-          <ProtectedRoute>
-            <DTraderPage />
-          </ProtectedRoute>
+          // <ProtectedRoute>
+          <DTraderPage />
+          // </ProtectedRoute>
         }
       />
       <Route
         path="/analysis"
         element={
-          <ProtectedRoute>
-            <MarketAnalysis />
-          </ProtectedRoute>
+          //<ProtectedRoute>
+          <MarketAnalysis />
+          // </ProtectedRoute>
         }
       />
       <Route
         path="/copy-trading"
         element={
+          // <ProtectedRoute>
+          <CopyTrading />
+          // </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/charts"
+        element={
           <ProtectedRoute>
-            <CopyTrading />
+            <ChartPage />
           </ProtectedRoute>
         }
       />
+      <Route path="/trading-view" element={<TradingView />} />
+
       <Route path="/bots" element={<FreeBots />} />
 
       <Route path="/auth/callback" element={<AuthCallback />} />

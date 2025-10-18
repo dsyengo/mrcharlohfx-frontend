@@ -32,8 +32,13 @@ export default function Navbar() {
       icon: <Bot className="w-4 h-4" />,
     },
     {
-      label: "Charts / Trading View",
-      to: "/#charts",
+      label: "Charts",
+      to: "/charts",
+      icon: <LineChart className="w-4 h-4" />,
+    },
+    {
+      label: "Trading View",
+      to: "/trading-view",
       icon: <LineChart className="w-4 h-4" />,
     },
     {
