@@ -77,7 +77,14 @@ function App(): ReactElement {
           </ProtectedRoute>
         }
       />
-      <Route path="/trading-view" element={<TradingView />} />
+      <Route
+        path="/trading-view"
+        element={
+          <ProtectedRoute>
+            <TradingView />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="/bots" element={<FreeBots />} />
 
