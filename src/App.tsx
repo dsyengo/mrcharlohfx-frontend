@@ -23,13 +23,10 @@ function App(): ReactElement {
       {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
-
       {/* Protected Dashboard - Shows different content based on auth state */}
       <Route path="/dashboard" element={<Dashboard />} />
-
       {/* Public Tools that work without authentication */}
       <Route path="/bots" element={<FreeBots />} />
-
       {/* Protected Trading Routes - Require authentication */}
       <Route
         path="/bot-builder"
@@ -50,9 +47,9 @@ function App(): ReactElement {
       <Route
         path="/analysis"
         element={
-          <ProtectedRoute>
-            <MarketAnalysis />
-          </ProtectedRoute>
+         // <ProtectedRoute>
+            <AnalysisPage />
+         // </ProtectedRoute>
         }
       />
       <Route
@@ -79,7 +76,6 @@ function App(): ReactElement {
           </ProtectedRoute>
         }
       />
-
       <Route path="/auth/callback" element={<AuthCallback />} />
       {/* Catch all route */}
       <Route path="*" element={<Navigate to="/" replace />} />
