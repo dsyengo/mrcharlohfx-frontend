@@ -30,11 +30,11 @@ export default function LivePriceDisplay({
     }
   }, [price, prevPrice]);
 
-  // Get the last digit from 3 decimal places
+  // Get the last digit from 2 decimal places (2nd decimal digit)
   const getLastDigit = (price: number): number => {
-    // Convert to string with 3 decimal places
-    const priceStr = price.toFixed(3);
-    // Get the last character (3rd decimal digit)
+    // Convert to string with 2 decimal places
+    const priceStr = price.toFixed(2);
+    // Get the last character (2nd decimal digit)
     return parseInt(priceStr[priceStr.length - 1]);
   };
 
@@ -89,6 +89,9 @@ export default function LivePriceDisplay({
   const isOver =
     currentDigitValue !== undefined ? isOverFive(currentDigitValue) : false;
 
+  // Get full price with 2 decimal places for display
+  const displayPrice = price !== null ? price.toFixed(2) : "--.--";
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full">
       <div className="flex items-center justify-between mb-4">
@@ -105,17 +108,33 @@ export default function LivePriceDisplay({
           {symbol || "Select Market"}
         </div>
 
-        {/* Main Price Display */}
+        {/* Main Price Display - 2 Decimal Places */}
         <div
           className={`text-4xl md:text-5xl font-bold font-mono mb-2 transition-all duration-300 ${
             pulse ? "scale-110" : "scale-100"
           } bg-gradient-to-r ${getMarketColor()} bg-clip-text text-transparent`}
         >
-          {price !== null ? price.toFixed(3) : "---.---"}
+          {displayPrice}
         </div>
 
+        {/* Price Breakdown */}
+        {price !== null && (
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="text-xs text-gray-600 mb-2">Price Breakdown</div>
+            <div className="flex justify-center items-baseline space-x-4">
+              <div className="text-lg font-mono text-gray-800">
+                {displayPrice.slice(0, -3)} {/* Whole number and 1st decimal */}
+              </div>
+              <div className="text-2xl font-mono font-bold text-blue-600">
+                {displayPrice.slice(-1)} {/* 2nd decimal (last digit) */}
+              </div>
+              <div className="text-xs text-gray-500">(Last Digit)</div>
+            </div>
+          </div>
+        )}
+
         {/* Last Digit Analysis */}
-        <div className="mt-6 p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200">
+        <div className="mt-4 p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200">
           <h4 className="text-sm font-medium text-gray-700 mb-3">
             Last Digit Analysis
           </h4>
@@ -126,6 +145,7 @@ export default function LivePriceDisplay({
               <div className="text-2xl font-bold font-mono text-blue-600">
                 {currentDigitValue !== undefined ? currentDigitValue : "-"}
               </div>
+              <div className="text-xs text-gray-500 mt-1">from 2nd decimal</div>
             </div>
 
             <div>
@@ -141,6 +161,15 @@ export default function LivePriceDisplay({
                     : "ODD"
                   : "-"}
               </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {currentDigitValue !== undefined && (
+                  <span
+                    className={isEven ? "text-green-600" : "text-orange-600"}
+                  >
+                    {isEven ? "✓ Even number" : "✓ Odd number"}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -148,7 +177,7 @@ export default function LivePriceDisplay({
           {marketType === "over_under" && currentDigitValue !== undefined && (
             <div className="mt-3 pt-3 border-t border-gray-300">
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-600">Position:</span>
+                <span className="text-gray-600">Position vs 5:</span>
                 <span
                   className={`font-bold ${
                     isOver ? "text-purple-600" : "text-pink-600"
@@ -156,6 +185,10 @@ export default function LivePriceDisplay({
                 >
                   {isOver ? "OVER 5" : "UNDER 5"}
                 </span>
+              </div>
+              <div className="flex justify-between items-center text-xs text-gray-500 mt-1">
+                <span>Digit {currentDigitValue} is</span>
+                <span>{isOver ? "> 5" : "≤ 5"}</span>
               </div>
             </div>
           )}
@@ -205,7 +238,8 @@ export default function LivePriceDisplay({
             <div className="font-medium mb-1">Quick Analysis:</div>
             <div className="space-y-1">
               <div>
-                • Digit {currentDigitValue} is {isEven ? "even" : "odd"}
+                • Digit <strong>{currentDigitValue}</strong> is{" "}
+                {isEven ? "even" : "odd"}
               </div>
               {marketType === "over_under" && (
                 <div>• Position is {isOver ? "over 5" : "under 5"}</div>
@@ -213,7 +247,22 @@ export default function LivePriceDisplay({
               {marketType === "even_odd" && (
                 <div>• {isEven ? "Even" : "Odd"} prediction suggested</div>
               )}
+              {marketType === "match_differs" && (
+                <div>• Compare with previous digits</div>
+              )}
+              {marketType === "rise_fall" && (
+                <div>• Monitor price movement trends</div>
+              )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Digit Range Info */}
+      {currentDigitValue !== undefined && (
+        <div className="mt-3 p-2 bg-gray-100 rounded border border-gray-300">
+          <div className="text-xs text-gray-600 text-center">
+            Digit range: 0-9 • Even: 0,2,4,6,8 • Odd: 1,3,5,7,9
           </div>
         </div>
       )}

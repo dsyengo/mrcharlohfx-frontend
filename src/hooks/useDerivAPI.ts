@@ -1,216 +1,214 @@
 // pages/analysis/hooks/useDerivApi.ts
 import { useState, useCallback, useRef, useEffect } from "react";
 
-const app_id = import.meta.env.VITE_APP_ID || "1089"; // Default app_id
-
 export function useDerivApi() {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const activeSubscriptionRef = useRef<{
     symbol: string;
     callback: (data: any) => void;
   } | null>(null);
-  const reconnectAttemptsRef = useRef(0);
-  const maxReconnectAttempts = 5;
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
   const pingIntervalRef = useRef<NodeJS.Timeout>();
 
   const connect = useCallback(() => {
-    // Prevent multiple connection attempts
-    if (wsRef.current?.readyState === WebSocket.OPEN || isConnecting) {
-      return;
+    // Clean up any existing connection
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
     }
 
-    // Clear any existing reconnect timeout
-    if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
-      console.error("Max reconnection attempts reached");
+    // Clear existing timeouts
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+
+    if (isConnecting) {
       return;
     }
 
     setIsConnecting(true);
-    console.log(
-      `🔗 Connecting to Deriv API (attempt ${
-        reconnectAttemptsRef.current + 1
-      })...`
-    );
+    setConnectionError(null);
+
+    console.log("🔗 Establishing WebSocket connection to Deriv API...");
 
     try {
-      const ws = new WebSocket(
-        `wss://ws.binaryws.com/websockets/v3?app_id=${app_id}`
-      );
+      const app_id = import.meta.env.VITE_APP_ID;
+      if (!app_id) {
+        throw new Error(
+          "VITE_APP_ID is not configured in environment variables"
+        );
+      }
+
+      const wsUrl = `wss://ws.binaryws.com/websockets/v3?app_id=${app_id}`;
+      console.log("🔧 WebSocket URL:", wsUrl);
+
+      const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
-        console.log("✅ Connected to Deriv WS API");
+        console.log("✅ WebSocket connection successfully established");
         setIsConnected(true);
         setIsConnecting(false);
-        reconnectAttemptsRef.current = 0;
+        setConnectionError(null);
 
-        // Start ping interval to keep connection alive
+        // Start keep-alive ping
         pingIntervalRef.current = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ ping: 1 }));
+            try {
+              ws.send(JSON.stringify({ ping: 1 }));
+            } catch (error) {
+              console.error("❌ Ping failed:", error);
+            }
           }
-        }, 30000);
+        }, 30000); // Ping every 30 seconds
 
-        // Resubscribe if there was an active subscription
+        // Resubscribe if we have an active subscription
         if (activeSubscriptionRef.current) {
           const { symbol, callback } = activeSubscriptionRef.current;
-          console.log(`🔄 Resubscribing to ${symbol} after reconnect`);
-          subscribe(symbol, callback);
+          console.log(`🔄 Auto-resubscribing to ${symbol}`);
+          setTimeout(() => subscribe(symbol, callback), 100);
         }
       };
 
       ws.onclose = (event) => {
-        console.log("❌ WebSocket closed:", event.code, event.reason);
+        console.log(
+          `❌ WebSocket closed: ${event.code} - ${
+            event.reason || "No reason provided"
+          }`
+        );
         setIsConnected(false);
         setIsConnecting(false);
 
-        // Clear ping interval
+        // Clear intervals
         if (pingIntervalRef.current) {
           clearInterval(pingIntervalRef.current);
         }
 
-        // Don't reconnect if closed normally
+        // Don't reconnect for normal closures
         if (event.code === 1000) {
-          console.log("WebSocket closed normally");
+          console.log("ℹ️ Normal WebSocket closure");
           return;
         }
 
-        // Exponential backoff for reconnection
-        const delay = Math.min(
-          1000 * Math.pow(2, reconnectAttemptsRef.current),
-          30000
-        );
-        reconnectAttemptsRef.current++;
+        // Auto-reconnect after delay for abnormal closures
+        const errorMessage = getWebSocketError(event.code);
+        setConnectionError(`${errorMessage}. Reconnecting...`);
 
-        console.log(`🔄 Reconnecting in ${delay}ms...`);
-        setTimeout(() => {
-          if (reconnectAttemptsRef.current <= maxReconnectAttempts) {
-            connect();
-          }
-        }, delay);
+        console.log("🔄 Scheduling reconnection in 3 seconds...");
+        reconnectTimeoutRef.current = setTimeout(() => {
+          connect();
+        }, 3000);
       };
 
       ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-        setIsConnected(false);
+        console.error("❌ WebSocket error event:", error);
+        setConnectionError(
+          "Network connection error. Check your internet connection."
+        );
         setIsConnecting(false);
       };
 
-      // Handle incoming messages with proper error handling
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log("📨 Raw WebSocket message:", data);
 
-          // Handle pong responses
-          if (data.msg_type === "pong") {
-            return;
-          }
+          // Handle different message types
+          switch (data.msg_type) {
+            case "authorize":
+              if (data.error) {
+                console.error("❌ Authorization error:", data.error);
+                setConnectionError(
+                  `Authentication failed: ${data.error.message}`
+                );
+                ws.close(); // Close connection on auth failure
+              } else {
+                console.log("✅ Authorization successful");
+              }
+              break;
 
-          // Handle tick data with proper validation
-          if (data.msg_type === "tick") {
-            // Validate tick data structure
-            if (!data.tick) {
-              console.warn("⚠️ Tick data missing tick property:", data);
-              return;
-            }
+            case "tick":
+              if (data.tick && activeSubscriptionRef.current?.callback) {
+                const processedData = {
+                  symbol: data.tick.symbol,
+                  price: parseFloat(data.tick.quote),
+                  timestamp: data.tick.epoch * 1000,
+                  ask: data.tick.ask ? parseFloat(data.tick.ask) : undefined,
+                  bid: data.tick.bid ? parseFloat(data.tick.bid) : undefined,
+                };
+                activeSubscriptionRef.current.callback(processedData);
+              }
+              break;
 
-            if (!data.tick.symbol || !data.tick.quote) {
-              console.warn("⚠️ Incomplete tick data:", data.tick);
-              return;
-            }
+            case "tick_history":
+              if (data.error) {
+                console.error("❌ Subscription error:", data.error);
+                setConnectionError(
+                  `Subscription failed: ${data.error.message}`
+                );
+              } else {
+                console.log("✅ Subscription confirmed for tick data");
+              }
+              break;
 
-            const processedData = {
-              symbol: data.tick.symbol,
-              price: parseFloat(data.tick.quote),
-              timestamp: data.tick.epoch ? data.tick.epoch * 1000 : Date.now(),
-              ask: data.tick.ask ? parseFloat(data.tick.ask) : undefined,
-              bid: data.tick.bid ? parseFloat(data.tick.bid) : undefined,
-            };
+            case "forget":
+              console.log("✅ Unsubscribe confirmed");
+              break;
 
-            console.log("✅ Processed tick data:", processedData);
+            case "pong":
+              // Silent handling for pong responses
+              break;
 
-            // Send to active subscription callback
-            if (activeSubscriptionRef.current?.callback) {
-              activeSubscriptionRef.current.callback(processedData);
-            }
-          }
-
-          // Handle subscription responses
-          if (data.msg_type === "tick_history") {
-            console.log("📊 Tick history response received");
-            if (data.error) {
-              console.error("❌ Subscription error:", data.error);
-            }
-          }
-
-          // Handle forget responses
-          if (data.msg_type === "forget") {
-            console.log("📊 Unsubscribe confirmation received");
-          }
-
-          // Handle authorization responses
-          if (data.msg_type === "authorize") {
-            if (data.error) {
-              console.error("❌ Authorization error:", data.error);
-            } else {
-              console.log("✅ Authorization successful");
-            }
+            default:
+              console.log("📨 Received message:", data.msg_type, data);
           }
         } catch (error) {
           console.error("❌ Error parsing WebSocket message:", error);
-          console.log("📨 Raw message that caused error:", event.data);
+          console.log("📨 Raw message:", event.data);
         }
       };
 
       wsRef.current = ws;
     } catch (error) {
-      console.error("Failed to connect to Deriv API:", error);
+      console.error("❌ Failed to create WebSocket connection:", error);
+      setConnectionError("Failed to initialize WebSocket connection");
       setIsConnecting(false);
 
       // Retry connection after delay
-      setTimeout(() => {
-        if (reconnectAttemptsRef.current <= maxReconnectAttempts) {
-          connect();
-        }
-      }, 3000);
+      reconnectTimeoutRef.current = setTimeout(() => {
+        connect();
+      }, 5000);
     }
   }, [isConnecting]);
 
   const subscribe = useCallback(
     (symbol: string, onData: (data: any) => void) => {
-      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-        console.log(
-          "⏳ WebSocket not ready, storing subscription for later..."
-        );
-        activeSubscriptionRef.current = { symbol, callback: onData };
+      console.log(`📡 Requesting subscription to: ${symbol}`);
 
-        // Trigger connection if not already connecting
+      // Store subscription info
+      activeSubscriptionRef.current = { symbol, callback: onData };
+
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        console.log("⏳ WebSocket not ready, will subscribe when connected");
         if (!isConnecting && !isConnected) {
           connect();
         }
         return;
       }
 
-      console.log(`📡 Subscribing to ${symbol}`);
-
-      // Store the active subscription
-      activeSubscriptionRef.current = { symbol, callback: onData };
-
-      // Subscribe to ticks with proper error handling
-      const subscribeMessage = {
-        ticks: symbol,
-        subscribe: 1,
-      };
-
       try {
+        const subscribeMessage = {
+          ticks: symbol,
+          subscribe: 1,
+        };
+
+        console.log("📤 Sending subscription message:", subscribeMessage);
         wsRef.current.send(JSON.stringify(subscribeMessage));
-        console.log(`✅ Subscription request sent for ${symbol}`);
+        console.log(`✅ Subscription request sent for: ${symbol}`);
       } catch (error) {
-        console.error("❌ Error sending subscription message:", error);
-        // Retry subscription after short delay
-        setTimeout(() => subscribe(symbol, onData), 1000);
+        console.error("❌ Failed to send subscription request:", error);
+        setConnectionError("Failed to subscribe to market data");
       }
     },
     [isConnected, isConnecting, connect]
@@ -218,37 +216,34 @@ export function useDerivApi() {
 
   const unsubscribe = useCallback(() => {
     if (
-      wsRef.current &&
-      wsRef.current.readyState === WebSocket.OPEN &&
-      activeSubscriptionRef.current
+      activeSubscriptionRef.current &&
+      wsRef.current?.readyState === WebSocket.OPEN
     ) {
-      const unsubscribeMessage = {
-        forget: activeSubscriptionRef.current.symbol,
-      };
-
       try {
+        const unsubscribeMessage = {
+          forget: activeSubscriptionRef.current.symbol,
+        };
         wsRef.current.send(JSON.stringify(unsubscribeMessage));
         console.log(
-          `📡 Unsubscribe request sent for ${activeSubscriptionRef.current.symbol}`
+          `📡 Unsubscribed from: ${activeSubscriptionRef.current.symbol}`
         );
       } catch (error) {
-        console.error("❌ Error sending unsubscribe message:", error);
+        console.error("❌ Failed to send unsubscribe request:", error);
       }
     }
-
     activeSubscriptionRef.current = null;
   }, []);
 
   const disconnect = useCallback(() => {
-    console.log("🔌 Manually disconnecting WebSocket...");
+    console.log("🔌 Manual disconnect requested");
 
-    // Clear intervals
+    // Clear timeouts and intervals
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
     if (pingIntervalRef.current) {
       clearInterval(pingIntervalRef.current);
     }
-
-    // Reset reconnection attempts
-    reconnectAttemptsRef.current = maxReconnectAttempts + 1;
 
     // Close WebSocket
     if (wsRef.current) {
@@ -259,13 +254,16 @@ export function useDerivApi() {
 
     setIsConnected(false);
     setIsConnecting(false);
+    setConnectionError("Manually disconnected");
   }, [unsubscribe]);
 
-  // Auto-connect on component mount
+  // Auto-connect on mount
   useEffect(() => {
+    console.log("🚀 Initializing Deriv API connection...");
     connect();
 
     return () => {
+      console.log("🧹 Cleaning up Deriv API connection...");
       disconnect();
     };
   }, []);
@@ -277,5 +275,29 @@ export function useDerivApi() {
     disconnect,
     isConnected,
     isConnecting,
+    connectionError,
   };
+}
+
+// Helper function to interpret WebSocket error codes
+function getWebSocketError(code: number): string {
+  const errorMessages: { [key: number]: string } = {
+    1000: "Normal closure",
+    1001: "Endpoint going away",
+    1002: "Protocol error",
+    1003: "Unsupported data",
+    1005: "No status received",
+    1006: "Abnormal closure - Check app_id and network",
+    1007: "Invalid frame payload data",
+    1008: "Policy violation",
+    1009: "Message too big",
+    1010: "Missing extension",
+    1011: "Internal error",
+    1012: "Service restart",
+    1013: "Try again later",
+    1014: "Bad gateway",
+    1015: "TLS handshake failed",
+  };
+
+  return errorMessages[code] || `WebSocket error ${code}`;
 }
