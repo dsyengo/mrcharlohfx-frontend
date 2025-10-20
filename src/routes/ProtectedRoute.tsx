@@ -1,6 +1,7 @@
 // routes/ProtectedRoute.tsx
 import { Navigate, useLocation } from "react-router-dom";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 type ProtectedRouteProps = {
   children: ReactNode;
@@ -8,36 +9,16 @@ type ProtectedRouteProps = {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const location = useLocation();
-  const [isChecking, setIsChecking] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { checkAuth, isLoading } = useAuth();
 
-  useEffect(() => {
-    const checkAuth = () => {
-      // Check multiple possible auth indicators
-      const derivToken = localStorage.getItem("deriv_token");
-      const derivAccounts = localStorage.getItem("deriv_accounts");
+  // Use direct check instead of waiting for state updates
+  const isAuthenticated = checkAuth();
 
-      // Consider authenticated if either token exists or accounts exist
-      const authenticated = Boolean(derivToken) || Boolean(derivAccounts);
-      setIsAuthenticated(authenticated);
-      setIsChecking(false);
-    };
-
-    checkAuth();
-
-    // Optional: Listen for storage changes
-    const handleStorageChange = () => checkAuth();
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
-
-  if (isChecking) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <span className="ml-2 text-gray-600">Loading...</span>
       </div>
     );
   }

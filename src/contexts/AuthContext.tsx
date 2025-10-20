@@ -1,3 +1,4 @@
+// contexts/AuthContext.tsx
 import {
   createContext,
   useContext,
@@ -20,6 +21,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isLoading: boolean;
   refreshAccounts: () => void;
+  checkAuth: () => boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,6 +66,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Direct auth check without state dependency
+  const checkAuth = (): boolean => {
+    const derivToken = localStorage.getItem("deriv_token");
+    const derivAccounts = localStorage.getItem("deriv_accounts");
+    return Boolean(derivToken) || Boolean(derivAccounts);
+  };
+
   useEffect(() => {
     loadAccounts();
   }, []);
@@ -75,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: accounts.length > 0,
     isLoading,
     refreshAccounts: loadAccounts,
+    checkAuth,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
