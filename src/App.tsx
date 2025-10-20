@@ -21,7 +21,6 @@ function App(): ReactElement {
       {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/auth/callback" element={<AuthCallback />} />
 
       {/* Protected Dashboard - Shows different content based on auth state */}
       <Route path="/dashboard" element={<Dashboard />} />
@@ -79,6 +78,7 @@ function App(): ReactElement {
         }
       />
 
+      <Route path="/auth/callback" element={<AuthCallback />} />
       {/* Catch all route */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
