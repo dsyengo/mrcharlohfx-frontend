@@ -6,7 +6,7 @@ import LivePriceDisplay from "./components/LivePriceDisplay";
 import DigitsVisualizer from "./components/DigitsVisualizer";
 import MarketAnalysisCard from "./components/MarketAnalysisCard";
 import { ConnectionStatus } from "./components/ConnectionStatus";
-import { useDerivApi } from "../../hooks/useDerivApi";
+import { useDerivApi } from "../../hooks/useDerivAPI";
 
 export interface MarketData {
   symbol: string;
