@@ -1,4 +1,3 @@
-// AuthCallback.tsx
 import { useEffect, useState, type ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
