@@ -14,6 +14,8 @@ import MarketAnalysis from "./pages/MarketAnalysis";
 import CopyTrading from "./pages/CopyTrading";
 import ChartPage from "./pages/ChartPage";
 import TradingView from "./pages/TradingView";
+import DerivFrame from "./components/DerivFrame";
+import { title } from "process";
 
 function App(): ReactElement {
   return (
@@ -65,7 +67,7 @@ function App(): ReactElement {
         path="/charts"
         element={
           <ProtectedRoute>
-            <ChartPage />
+            <DerivFrame page="#/chart" title="Charts" />
           </ProtectedRoute>
         }
       />
