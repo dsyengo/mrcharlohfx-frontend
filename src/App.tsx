@@ -32,8 +32,8 @@ function App(): ReactElement {
         path="/bot-builder"
         element={
           <ProtectedRoute>
-            <BotBuilder />
-          </ProtectedRoute>
+          <BotBuilder />
+         </ProtectedRoute>
         }
       />
       <Route
@@ -47,9 +47,9 @@ function App(): ReactElement {
       <Route
         path="/analysis"
         element={
-         // <ProtectedRoute>
-            <AnalysisPage />
-         // </ProtectedRoute>
+          // <ProtectedRoute>
+          <AnalysisPage />
+          // </ProtectedRoute>
         }
       />
       <Route
