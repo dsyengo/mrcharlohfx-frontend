@@ -16,12 +16,7 @@ export default function BotBuilder() {
       return;
     }
 
-    // ✅ Option 1: Direct Deriv page (if allowed by headers)
     const directUrl = `https://dbot.deriv.com/#bot_builder?token=${token}`;
-
-    // ✅ Option 2 (recommended): Through your reverse proxy
-    // const directUrl = `${import.meta.env.VITE_API_URL}/proxy/dbot?token=${token}`;
-
     setIframeUrl(directUrl);
     setIsLoading(false);
   }, []);
@@ -29,7 +24,7 @@ export default function BotBuilder() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] w-full bg-gray-50">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
           <p className="mt-2 text-gray-600 text-sm">
             Loading Deriv Bot Builder...
@@ -41,25 +36,14 @@ export default function BotBuilder() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50 p-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-semibold text-gray-800">
-              Deriv Bot Builder
-            </h1>
-          </div>
-
-          {/* ✅ Bot Builder Embed */}
-          <div className="relative w-full h-[85vh] rounded-lg overflow-hidden shadow-md border border-gray-200 bg-white">
-            <iframe
-              src={iframeUrl ?? ""}
-              title="Deriv Bot Builder"
-              className="w-full h-full border-0"
-              allow="clipboard-read; clipboard-write; fullscreen; autoplay"
-              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
-            />
-          </div>
-        </div>
+      <div className="w-full h-[calc(100vh-4rem)] overflow-hidden bg-white">
+        <iframe
+          src={iframeUrl ?? ""}
+          title="Deriv Bot Builder"
+          className="w-full h-full border-0"
+          allow="clipboard-read; clipboard-write; fullscreen; autoplay"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
+        />
       </div>
     </Layout>
   );
