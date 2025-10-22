@@ -17,7 +17,7 @@ export default function BotBuilder() {
     }
 
     // ✅ Option 1: Direct Deriv page (if allowed by headers)
-    const directUrl = `https://dbot.deriv.com/?token=${token}`;
+    const directUrl = `https://dbot.deriv.com/#bot_builder?token=${token}`;
 
     // ✅ Option 2 (recommended): Through your reverse proxy
     // const directUrl = `${import.meta.env.VITE_API_URL}/proxy/dbot?token=${token}`;
